@@ -4,6 +4,29 @@
 
 #define STACK_MAX 256
 
+/*
+ +--------------+
+ |     VM       |
+ |--------------|
+ | stack        |
+ | stackSize    |
+ | firstObject -+---+
+ | numObjects   |   |
+ | maxObjects   |   |
+ +--------------+   |
+                    V  (new)                   (old)
+				+------------+             +------------+
+				|   Object   |  +------->  |   Object   |
+				|------------|  |          |------------|
+				| type       |  |          | type       |
+				| marked     |  |          | marked     |
+				| next      -+--+          | next       |
+				| value      |             | value      |
+				| head       |             | head       |
+				| tail       |             | tail       |
+				+------------+             +------------+
+*/
+
 typedef enum {
 	OBJ_INT,
 	OBJ_PAIR
