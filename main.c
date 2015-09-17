@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define STACK_MAX 256
 
@@ -52,9 +53,10 @@ void assert(int condition, const char* message)
 VM* newVM()
 {
 	VM* vm = malloc(sizeof(VM));
-	vm->stackSize = 0;
-	vm->firstObject = NULL;
-	vm->numObjects = 0;
+	if (vm == NULL)
+		return NULL;
+
+	memset(vm, 0, sizeof(VM));
 	vm->maxObjects = 8;
 
 	return vm;
@@ -143,6 +145,9 @@ Object* newObject(VM* vm, ObjectType type)
 		gc(vm);
 
 	Object* object = malloc(sizeof(Object));
+	if (object == NULL)
+		return NULL;
+
 	object->type = type;
 	object->next = vm->firstObject;
 	vm->firstObject = object;
@@ -156,6 +161,11 @@ Object* newObject(VM* vm, ObjectType type)
 void pushInt(VM* vm, int intValue)
 {
 	Object* object = newObject(vm, OBJ_INT);
+	if (object == NULL) {
+		printf("pushInt newObject failed\n");
+		return;
+	}
+
 	object->value = intValue;
 
 	push(vm, object);
@@ -164,6 +174,11 @@ void pushInt(VM* vm, int intValue)
 Object* pushPair(VM* vm)
 {
 	Object* object = newObject(vm, OBJ_PAIR);
+	if (object == NULL) {
+		printf("pushPair newObject failed\n");
+		return NULL;
+	}
+	
 	object->tail = pop(vm);
 	object->head = pop(vm);
 
@@ -198,6 +213,11 @@ void test1()
 {
 	printf("Test 1: Objects on stack are preserved.\n");
 	VM* vm = newVM();
+	if (vm == NULL) {
+		printf("test1 newVM failed\n");	
+		return;
+	}
+
 	pushInt(vm, 1);
 	pushInt(vm, 2);
 
@@ -210,6 +230,11 @@ void test2()
 {
 	printf("Test 2: Unreached objects are collected.\n");
 	VM* vm = newVM();
+	if (vm == NULL) {
+		printf("test2 newVM failed\n");	
+		return;
+	}
+
 	pushInt(vm, 1);
 	pushInt(vm, 2);
 	pop(vm);
@@ -224,6 +249,11 @@ void test3()
 {
 	printf("Test 3: Reach nested objects.\n");
 	VM* vm = newVM();
+	if (vm == NULL) {
+		printf("test3 newVM failed\n");	
+		return;
+	}
+
 	pushInt(vm, 1);
 	pushInt(vm, 2);
 	pushPair(vm);
@@ -241,6 +271,11 @@ void test4()
 {
 	printf("Test 4: Handle cycles.\n");
 	VM* vm = newVM();
+	if (vm == NULL) {
+		printf("test4 newVM failed\n");	
+		return;
+	}
+
 	pushInt(vm, 1);
 	pushInt(vm, 2);
 	Object* a = pushPair(vm);
@@ -261,6 +296,10 @@ void perfTest()
 {
 	printf("Performance Test.\n");
 	VM* vm = newVM();
+	if (vm == NULL) {
+		printf("perfTest newVM failed\n");	
+		return;
+	}
 
 	for (int i = 0; i < 1000; i++) {
 		for (int j = 0; j < 20; j++) {
@@ -275,7 +314,7 @@ void perfTest()
 	freeVM(vm);
 }
 
-int main(int argc, const char * argv[])
+int main(int argc, char *argv[])
 {
 	test1();
 	test2();
